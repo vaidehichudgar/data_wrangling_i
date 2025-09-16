@@ -8,6 +8,8 @@ library(readxl)
 library(haven)
 ```
 
+Lets read in a csv file. 
+
 ```{r}
 litters_df =
   read_csv("./data/FAS_litters.csv")
@@ -74,5 +76,12 @@ pulse_df =
 ```{r eval = FALSE}
 litters_df_base = 
   read.csv("data/FAS_litters.csv")
+```
+
+## what about data export
+
+```{r}
+write_csv(fotr_df, "data/fotr_df.csv")
+
 ```
 
