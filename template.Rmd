@@ -2,41 +2,64 @@
 title: "Data Import"
 output: github_document
 ---
+
 ```{r}
-library(tidyverse)
+library(tidyverse) #readr is part of tidyverse
 library(readxl)
 library(haven)
 ```
 
-Lets read in a csv file. 
+Lets import a dataset.
 
 ```{r}
 litters_df =
-  read_csv("./data/FAS_litters.csv")
+  read_csv("data/FAS_litters.csv") # read_csv converts it into tibble
 ```
 
+Look at your data!
 
 ```{r}
 names(litters_df)
 ```
 
+Variable names with spaces are a hassle. Let's change it to have no spaces.
+
 ```{r}
-litters_df = janitor::clean_names(litters_df)
+litters_df = janitor::clean_names(litters_df) #overwrite variable names using clean names function
 names(litters_df)
 ```
+
+Look at the data.
+
+```{r}
+litters_df # prints the data and shows what type of variables
+```
+
 
 Sometimes skimming data is neat?
 ```{r}
-skimr::skim(litters_df)
+skimr::skim(litters_df) # provides high level summary
+```
+
+## Fix the missingness
+
+We see in the data that there are some NA and some missing are indicated with "."
+
+```{r}
+litters_df = 
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))
 ```
 
 
 ## Import pups data
 
+Here we account for the fact that first 3 rows are empty using skip option
+
 ```{r}
 pups_df = 
-    read_csv("./data/FAS_pups.csv",
-        na = c(".", "NA"), col_types = "fddddd")
+    read_csv("data/FAS_pups.csv",
+        na = c(".", "NA", ""), 
+        skip = 3)
 
 pups_df = 
     janitor::clean_names(pups_df)
@@ -53,7 +76,7 @@ mlb_df =
   read_excel("data/mlb11.xlsx")
 ```
 
-Import LotR word counts.
+Import LotR word counts, using specific range option
 
 ```{r}
 fotr_df=
@@ -62,7 +85,7 @@ fotr_df=
 
 ## SAS dataset import
 
-import the pulse dataset
+Import the pulse dataset
 
 ```{r}
 pulse_df = read_sas("data/public_pulse_data.sas7bdat")
@@ -73,12 +96,15 @@ pulse_df =
 ```
 
 ## Why do i hate read.csv so much
+
 ```{r eval = FALSE}
 litters_df_base = 
   read.csv("data/FAS_litters.csv")
 ```
 
 ## what about data export
+
+Use write_csv function.
 
 ```{r}
 write_csv(fotr_df, "data/fotr_df.csv")

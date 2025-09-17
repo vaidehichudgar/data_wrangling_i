@@ -2,7 +2,7 @@ Data Import
 ================
 
 ``` r
-library(tidyverse)
+library(tidyverse) #readr is part of tidyverse
 ```
 
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
@@ -21,9 +21,11 @@ library(readxl)
 library(haven)
 ```
 
+Lets import a dataset.
+
 ``` r
 litters_df =
-  read_csv("./data/FAS_litters.csv")
+  read_csv("data/FAS_litters.csv") # read_csv converts it into tibble
 ```
 
     ## Rows: 49 Columns: 8
@@ -35,6 +37,8 @@ litters_df =
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+Look at your data!
+
 ``` r
 names(litters_df)
 ```
@@ -43,18 +47,43 @@ names(litters_df)
     ## [4] "GD18 weight"       "GD of Birth"       "Pups born alive"  
     ## [7] "Pups dead @ birth" "Pups survive"
 
+Variable names with spaces are a hassle. Let’s change it to have no
+spaces.
+
 ``` r
-litters_df = janitor::clean_names(litters_df)
+litters_df = janitor::clean_names(litters_df) #overwrite variable names using clean names function
 names(litters_df)
 ```
 
     ## [1] "group"           "litter_number"   "gd0_weight"      "gd18_weight"    
     ## [5] "gd_of_birth"     "pups_born_alive" "pups_dead_birth" "pups_survive"
 
+Look at the data.
+
+``` r
+litters_df # prints the data and shows what type of variables
+```
+
+    ## # A tibble: 49 × 8
+    ##    group litter_number   gd0_weight gd18_weight gd_of_birth pups_born_alive
+    ##    <chr> <chr>           <chr>      <chr>             <dbl>           <dbl>
+    ##  1 Con7  #85             19.7       34.7                 20               3
+    ##  2 Con7  #1/2/95/2       27         42                   19               8
+    ##  3 Con7  #5/5/3/83/3-3   26         41.4                 19               6
+    ##  4 Con7  #5/4/2/95/2     28.5       44.1                 19               5
+    ##  5 Con7  #4/2/95/3-3     <NA>       <NA>                 20               6
+    ##  6 Con7  #2/2/95/3-2     <NA>       <NA>                 20               6
+    ##  7 Con7  #1/5/3/83/3-3/2 <NA>       <NA>                 20               9
+    ##  8 Con8  #3/83/3-3       <NA>       <NA>                 20               9
+    ##  9 Con8  #2/95/3         <NA>       <NA>                 20               8
+    ## 10 Con8  #3/5/2/2/95     28.5       <NA>                 20               8
+    ## # ℹ 39 more rows
+    ## # ℹ 2 more variables: pups_dead_birth <dbl>, pups_survive <dbl>
+
 Sometimes skimming data is neat?
 
 ``` r
-skimr::skim(litters_df)
+skimr::skim(litters_df) # provides high level summary
 ```
 
 |                                                  |            |
@@ -89,25 +118,45 @@ Data summary
 | pups_dead_birth |         0 |             1 |  0.33 | 0.75 |   0 |   0 |   0 |   0 |    4 | ▇▂▁▁▁ |
 | pups_survive    |         0 |             1 |  6.41 | 2.05 |   1 |   5 |   7 |   8 |    9 | ▁▃▂▇▇ |
 
+## Fix the missingness
+
+We see in the data that there are some NA and some missing are indicated
+with “.”
+
+``` r
+litters_df = 
+  read_csv("data/FAS_litters.csv", na = c("NA", ".", ""))
+```
+
+    ## Rows: 49 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Group, Litter Number
+    ## dbl (6): GD0 weight, GD18 weight, GD of Birth, Pups born alive, Pups dead @ ...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
 ## Import pups data
+
+Here we account for the fact that first 3 rows are empty using skip
+option
 
 ``` r
 pups_df = 
-    read_csv("./data/FAS_pups.csv",
-        na = c(".", "NA"), col_types = "fddddd")
+    read_csv("data/FAS_pups.csv",
+        na = c(".", "NA", ""), 
+        skip = 3)
 ```
 
-    ## New names:
-    ## • `` -> `...1`
-    ## • `` -> `...3`
-    ## • `` -> `...4`
-    ## • `` -> `...5`
-    ## • `` -> `...6`
-
-    ## Warning: One or more parsing issues, call `problems()` on your data frame for details,
-    ## e.g.:
-    ##   dat <- vroom(...)
-    ##   problems(dat)
+    ## Rows: 313 Columns: 6
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): Litter Number
+    ## dbl (5): Sex, PD ears, PD eyes, PD pivot, PD walk
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 pups_df = 
@@ -116,46 +165,35 @@ pups_df =
 skimr::skim(pups_df)
 ```
 
-    ## Warning: There was 1 warning in `dplyr::summarize()`.
-    ## ℹ In argument: `dplyr::across(tidyselect::any_of(variable_names),
-    ##   mangled_skimmers$funs)`.
-    ## ℹ In group 0: .
-    ## Caused by warning:
-    ## ! There was 1 warning in `dplyr::summarize()`.
-    ## ℹ In argument: `dplyr::across(tidyselect::any_of(variable_names),
-    ##   mangled_skimmers$funs)`.
-    ## Caused by warning in `sorted_count()`:
-    ## ! Variable contains value(s) of "" that have been converted to "empty".
-
 |                                                  |         |
 |:-------------------------------------------------|:--------|
 | Name                                             | pups_df |
-| Number of rows                                   | 316     |
+| Number of rows                                   | 313     |
 | Number of columns                                | 6       |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |         |
 | Column type frequency:                           |         |
-| factor                                           | 1       |
+| character                                        | 1       |
 | numeric                                          | 5       |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |         |
 | Group variables                                  | None    |
 
 Data summary
 
-**Variable type: factor**
+**Variable type: character**
 
-| skim_variable | n_missing | complete_rate | ordered | n_unique | top_counts |
-|:---|---:|---:|:---|---:|:---|
-| x1 | 0 | 1 | FALSE | 51 | \#1/: 9, \#98: 9, \#10: 9, \#10: 9 |
+| skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
+|:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
+| litter_number |         0 |             1 |   3 |  15 |     0 |       49 |          0 |
 
 **Variable type: numeric**
 
-| skim_variable    | n_missing | complete_rate |  mean |   sd |  p0 | p25 | p50 | p75 | p100 | hist  |
-|:-----------------|----------:|--------------:|------:|-----:|----:|----:|----:|----:|-----:|:------|
-| x1_male_2_female |         3 |          0.99 |  1.50 | 0.50 |   1 |   1 |   2 |   2 |    2 | ▇▁▁▁▇ |
-| x3               |        21 |          0.93 |  3.68 | 0.59 |   2 |   3 |   4 |   4 |    5 | ▁▅▁▇▁ |
-| x4               |        16 |          0.95 | 12.99 | 0.62 |  12 |  13 |  13 |  13 |   15 | ▂▇▁▂▁ |
-| x5               |        16 |          0.95 |  7.09 | 1.51 |   4 |   6 |   7 |   8 |   12 | ▂▇▂▂▁ |
-| x6               |         3 |          0.99 |  9.50 | 1.34 |   7 |   9 |   9 |  10 |   14 | ▆▇▇▂▁ |
+| skim_variable | n_missing | complete_rate |  mean |   sd |  p0 | p25 | p50 | p75 | p100 | hist  |
+|:--------------|----------:|--------------:|------:|-----:|----:|----:|----:|----:|-----:|:------|
+| sex           |         0 |          1.00 |  1.50 | 0.50 |   1 |   1 |   2 |   2 |    2 | ▇▁▁▁▇ |
+| pd_ears       |        18 |          0.94 |  3.68 | 0.59 |   2 |   3 |   4 |   4 |    5 | ▁▅▁▇▁ |
+| pd_eyes       |        13 |          0.96 | 12.99 | 0.62 |  12 |  13 |  13 |  13 |   15 | ▂▇▁▂▁ |
+| pd_pivot      |        13 |          0.96 |  7.09 | 1.51 |   4 |   6 |   7 |   8 |   12 | ▂▇▂▂▁ |
+| pd_walk       |         0 |          1.00 |  9.50 | 1.34 |   7 |   9 |   9 |  10 |   14 | ▆▇▇▂▁ |
 
 ## Excel formats
 
@@ -166,7 +204,7 @@ mlb_df =
   read_excel("data/mlb11.xlsx")
 ```
 
-Import LotR word counts.
+Import LotR word counts, using specific range option
 
 ``` r
 fotr_df=
@@ -175,7 +213,7 @@ fotr_df=
 
 ## SAS dataset import
 
-import the pulse dataset
+Import the pulse dataset
 
 ``` r
 pulse_df = read_sas("data/public_pulse_data.sas7bdat")
@@ -189,4 +227,12 @@ pulse_df =
 ``` r
 litters_df_base = 
   read.csv("data/FAS_litters.csv")
+```
+
+## what about data export
+
+Use write_csv function.
+
+``` r
+write_csv(fotr_df, "data/fotr_df.csv")
 ```
