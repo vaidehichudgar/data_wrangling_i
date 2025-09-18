@@ -23,3 +23,57 @@ pups_df =
     janitor::clean_names(pups_df)
 ```
 
+## `Select`
+
+`select` selects variables from my dataframe.
+
+select specific variables
+```{r}
+select(litters_df, group, litter_number, gd0_weight)
+```
+
+select a range
+```{r}
+select(litters_df, group:gd_of_birth) #keeps variables from group to gd of birth
+```
+
+select by deletion
+```{r}
+select(litters_df, -group)
+```
+
+select by prefix - keeping everything that starts with gd in this case
+```{r}
+select(litters_df, group, starts_with("gd"))
+```
+
+rearrange byb selecting
+```{r}
+select(litters_df, starts_with("gd"), group)
+select(litters_df, litter_number, everything())
+```
+
+rename by selecting
+```{r}
+select(litters_df, )
+```
+
+what is i only select one variable - group in this case
+```{r}
+select(litters_df, group)
+
+pull(litters_df, group) # you end up getting a vector here. 
+                        #don't use a pull function!!!
+```
+
+you could assign the selection to object
+```{r}
+select(litters_df, litter_number, everything())
+
+```
+
+LA 1 code
+```{r - Learning Assessment 1}
+select(pups_df, litter_number, sex, pd_ears)
+```
+
