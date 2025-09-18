@@ -113,3 +113,60 @@ filter(pups_df, sex == 1)
 filter(pups_df, pd_walk< 11, sex ==2)
 ```
 
+
+## mutate
+use `mutate()` to create or modify variables.
+
+```{r}
+mutate(
+  litters_df,
+  wt_gain = gd18_weight - gd0_weight,
+  group = str_to_lower(group)
+)
+```
+
+## arange
+
+`arange()` arranges things
+
+```{r}
+arrange(litters_df, pups_born_alive) #orders by pups_born_alive
+arrange(litters_df, desc(pups_born_alive) #orders by pups_born_alive opposite order
+arrange(litters_df, group, pups_born_alive)
+
+arrange(litters_df, gd0_weight)
+```
+
+## Pipes
+
+don't use intermediate steps
+
+Use pipes
+```{r}
+litters_df = 
+  read_csv("dataset/FAS_litters.csv", na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> #don't have to include litters_df here bc R                             knows what you are talking about litters_df
+  select(group, litter_number, starts_with("gd")) |> 
+  drop_na() |> 
+  mutate(
+    wt_gain = gd18_weight - gd0_weight
+  )
+```
+
+Learning Assessment 2
+
+```{r}
+pups_df =
+  read_csv("dataset/FAS_pups.csv", skip = 3, na = c("NA", "", ".")) |> 
+  janitor::clean_names() |> 
+  filter(sex == 1) |> 
+  select(-pd_ears) |> 
+  mutate(pd_pivot_morethan7 = pd_pivot >= 7)
+
+```
+
+
+
+
+
+
