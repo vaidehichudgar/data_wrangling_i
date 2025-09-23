@@ -1,11 +1,23 @@
----
-title: "tidy_data"
-output: github_document
-date: "2025-09-23"
----
+tidy_data
+================
+2025-09-23
 
-```{r - loading tidyverse}
+``` r
 library(tidyverse)
+```
+
+    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+    ## ✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ## ✔ purrr     1.1.0     
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
 library(readxl)
 library(haven)
 ```
@@ -14,7 +26,7 @@ This document will show how to tidy data.
 
 ## Pivot longer
 
-```{r - }
+``` r
 pulse_df = 
   read_sas("dataset/public_pulse_data.sas7bdat") |> 
   janitor::clean_names() |> 
@@ -26,15 +38,11 @@ pulse_df =
   ) |> 
   mutate(visit=replace(visit, visit == "bl", "00m")) |> 
   relocate(id, visit)
-  
-  
 ```
-
 
 Do one more example
 
-```{r}
-
+``` r
 litters_df =
   read_csv("dataset/FAS_litters.csv", na = c("NA", ".", "")) |> 
   janitor::clean_names() |> 
@@ -48,15 +56,22 @@ litters_df =
     "gd0_weight" ~ 0,
     "gd18_weight" ~ 18
   ))
-
 ```
 
+    ## Rows: 49 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Group, Litter Number
+    ## dbl (6): GD0 weight, GD18 weight, GD of Birth, Pups born alive, Pups dead @ ...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ## Pivot wider
 
 Lets make an analysis table
 
-```{r}
+``` r
 analysis_df =
   tibble(group = c("treatment", "treatment", "control", "control"),
          time = c("pre", "post", "pre", "post"),
@@ -65,7 +80,7 @@ analysis_df =
 
 pivot wider - making data 2x2 table
 
-```{r}
+``` r
 analysis_df |> 
   pivot_wider(
     names_from = time,
@@ -74,13 +89,16 @@ analysis_df |>
   knitr::kable()
 ```
 
+| group     | pre | post |
+|:----------|----:|-----:|
+| treatment | 4.0 |   10 |
+| control   | 4.2 |    5 |
 
 ## Bind tables
 
 This is when you want to stack datasets
 
-```{r}
-
+``` r
 fellowship_ring = 
   read_excel("dataset/LotR_Words.xlsx", range = "B3:D6") |> 
   mutate(movie = "fellowship_ring")
@@ -110,15 +128,13 @@ lotr_df =
 
   relocate(movie) |> 
   mutate(race = str_to_lower(race))
-  
 ```
-
 
 ## Join FAS datasets
 
 Import `litters` dataset.
 
-```{r}
+``` r
 litters_df =
 read_csv("dataset/FAS_litters.csv", na=c("NA", ".", "")) |> 
   janitor::clean_names() |> 
@@ -126,13 +142,24 @@ read_csv("dataset/FAS_litters.csv", na=c("NA", ".", "")) |>
   separate(
     group, into = c("dose", "day_of_treatment"), sep = 3 # the sep argument tells R to seperate the value after 3rd letter
   )
+```
 
+    ## Rows: 49 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Group, Litter Number
+    ## dbl (6): GD0 weight, GD18 weight, GD of Birth, Pups born alive, Pups dead @ ...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 #non tidyness bc multiple pieces of info in cell
-
 ```
 
 IMport `pups` dataset.
-```{r}
+
+``` r
 pups_df =
 read_csv("dataset/FAS_pups.csv", na=c("NA", ".", ""), skip = 3) |>
   janitor::clean_names() |> 
@@ -145,9 +172,18 @@ read_csv("dataset/FAS_pups.csv", na=c("NA", ".", ""), skip = 3) |>
   )
 ```
 
+    ## Rows: 313 Columns: 6
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): Litter Number
+    ## dbl (5): Sex, PD ears, PD eyes, PD pivot, PD walk
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
 Join the datasets
 
-```{r}
+``` r
 # want to keep every obs in pups dataframe and add the litters info to the pups dataframe
 
 # R will automatically join by variable it thinkgs is correct, but we should always add by argument
@@ -155,8 +191,4 @@ Join the datasets
 fas_df=
   left_join(pups_df, litters_df, by = "litter_number") |> 
   relocate(litter_number, dose, day_of_treatment)
-
-
 ```
-
-
