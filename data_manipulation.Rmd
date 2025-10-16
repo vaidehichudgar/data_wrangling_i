@@ -164,6 +164,6 @@ pups_df =
 
 
 
-
+There are `r unique_rows` that were included in the zip_code_df but not in the rental_price_df containing information from Zillow. Some zipcodes that are included in the `only_zipcode_dataset_zipcodes` dataset include `r slice_head(only_zipcode_dataset_zipcodes, n=10)`. This may be because these zip codes don't have any rental buildings/houses that are included on Zillow. 
 
 
